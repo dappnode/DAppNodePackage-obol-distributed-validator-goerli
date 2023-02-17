@@ -1,0 +1,23 @@
+version: "2"
+fields:
+  - id: definition-file
+    target:
+      type: environment
+      name: DEFINITION_FILE
+      service: charon
+    title: Definition File for the Distributed Key Generation (DKG) ceremony
+    description: >-
+      once you have registered all the operators in https://goerli.launchpad.obol.tech you will get a command like this: 
+      
+
+      docker run --rm -v "$(pwd)/:/opt/charon" obolnetwork/charon:v0.12.0 dkg --definition-file="https://api.obol.tech/dv/0xf9632c4333e4d67373b383da56dfb764df47268881d3412a1eef1a0247dc7367/"
+      
+
+      here you have to put the field --definition-file, for example following the example: 
+      
+
+      https://api.obol.tech/dv/0xf9632c4333e4d67373b383da56dfb764df47268881d3412a1eef1a0247dc7367
+
+    required: false
+    pattern: "(https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|www\\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\\.[^\\s]{2,}|https?:\/\/(?:www\\.|(?!www))[a-zA-Z0-9]+\\.[^\\s]{2,}|www\\.[a-zA-Z0-9]+\\.[^\\s]{2,})"
+    patternErrorMessage: Must be a valid URL (https://api.obol.tech/dv/0xf...)
