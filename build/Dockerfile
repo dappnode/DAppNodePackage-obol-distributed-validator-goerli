@@ -1,4 +1,6 @@
-FROM obolnetwork/charon:v0.13.0 
+ARG UPSTREAM_VERSION
+
+FROM obolnetwork/charon:${UPSTREAM_VERSION}
 
 USER root
 

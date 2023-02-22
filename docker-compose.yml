@@ -3,6 +3,8 @@ services:
   charon:
     build:
       context: ./build
+      args:
+        UPSTREAM_VERSION: v0.13.0
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.0"
     restart: unless-stopped
     volumes:
@@ -17,6 +19,8 @@ services:
       - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3631"
       - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
+      - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
+      - CHARON_LOKI_SERVICE=charon
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
