@@ -1,5 +1,4 @@
 #!/bin/bash
-
 # Exit on error
 set -eo pipefail
 
@@ -16,10 +15,11 @@ PRIVATE_KEY=/opt/charon/.charon/charon-enr-private-key
 ENR_FILE=/opt/charon/.charon/enr
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
+CURRENT_DEFINITION=/opt/charon/.charon/definition_file_hash.txt
 
 if [ ! -z "$DEFINITION_FILE" ]; then
   #Get the definition file from the environment variable and the hash
-  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE | sed 's|^.*/\(.*\)\/$|\1|')
+  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE | sed 's|https://api.obol.tech/dv/||g' | tr -d "/")
   if [[ $DEFINITION_FILE != https* ]]; then
     DEFINITION_FILE=https://api.obol.tech/dv/$DEFINITION_FILE_HASH
   fi
@@ -27,6 +27,14 @@ if [ ! -z "$DEFINITION_FILE" ]; then
   # Create the directory where the files will be stored
   mkdir -p /opt/charon/.charon/$DEFINITION_FILE_HASH
 
+  CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
+  REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
+  CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
+  VALIDATOR_KEYS_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH/validator_keys
+
+  echo $DEFINITION_FILE_HASH >$CURRENT_DEFINITION
+elif [ -f "$CURRENT_DEFINITION" ]; then
+  DEFINITION_FILE_HASH=$(cat $CURRENT_DEFINITION)
   CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
   REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
   CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
@@ -106,7 +114,7 @@ function checkDKG() {
   # by checking that DEFINITION_FILE exits but there is no CHARON_LOCK_FILE
   if [ ! -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
     cp $PRIVATE_KEY $CHARON_DATA_DIR
-    cp $ENR_FILE  $CHARON_DATA_DIR
+    cp $ENR_FILE $CHARON_DATA_DIR
     echo "${INFO} waiting for DKG ceremony..."
     charon dkg --definition-file=$DEFINITION_FILE --data-dir=$CHARON_DATA_DIR
   elif [ -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
