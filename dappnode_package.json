@@ -20,7 +20,7 @@
   ],
   "globalEnvs": [
     {
-      "envs": ["CONSENSUS_CLIENT_PRATER","DOMAIN", "PUBLIC_IP"],
+      "envs": ["CONSENSUS_CLIENT_PRATER", "DOMAIN", "PUBLIC_IP"],
       "services": ["charon"]
     }
   ],
