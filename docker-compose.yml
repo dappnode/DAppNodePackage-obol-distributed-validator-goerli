@@ -4,7 +4,7 @@ services:
     build:
       context: ./build
       args:
-        UPSTREAM_VERSION: v0.13.0
+        UPSTREAM_VERSION: v0.14.3
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.0"
     restart: unless-stopped
     volumes:
@@ -30,7 +30,7 @@ services:
     build:
       context: ./teku
       args:
-        UPSTREAM_VERSION: 23.1.1
+        UPSTREAM_VERSION: v0.14.3
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
