@@ -47,7 +47,7 @@ fi
 
 # Get the current beacon chain in use
 # Assign proper value to _DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER.
-function getBeaconNodeEndpoint() {
+function get_beacon_node_endpoint() {
   case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER" in
   "prysm-prater.dnp.dappnode.eth")
     export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.prysm-prater.dappnode:3500"
@@ -72,7 +72,7 @@ function getBeaconNodeEndpoint() {
 }
 
 # Get the ENR of the node or create it if it does not exist
-function getENR() {
+function get_ENR() {
   # Check if ENR file exists and create it if it does not
   if [[ ! -f "$PRIVATE_KEY" ]]; then
     echo "${INFO} ENR does not exist, creating it..."
@@ -84,7 +84,7 @@ function getENR() {
     ENR=$(cat $ENR_FILE)
     echo "${INFO} ENR: ${ENR}"
     echo "${INFO} Publishing ENR to dappmanager..."
-    postENR2Dappmanager
+    post_ENR_to_dappmanager
   else
     echo "${ERROR} it was not possible to get the ENR file"
     sleep 300 # Wait 5 minutes to avoid restarting the container
@@ -93,7 +93,7 @@ function getENR() {
 }
 
 # function to be post the ENR to dappmanager
-function postENR2Dappmanager() {
+function post_ENR_to_dappmanager() {
   # Post ENR to dappmanager
   curl --connect-timeout 5 \
     --max-time 10 \
@@ -109,7 +109,7 @@ function postENR2Dappmanager() {
 }
 
 # function to check if DKG is already done and if not, wait for it
-function checkDKG() {
+function check_DKG() {
   # Check if DKG is already done
   # by checking that DEFINITION_FILE exits but there is no CHARON_LOCK_FILE
   if [ ! -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
@@ -125,7 +125,7 @@ function checkDKG() {
 }
 
 # function that handles the import of the validatorss
-function importKey() {
+function import_key() {
   # Check if there are keys to import
   if [ -d $VALIDATOR_KEYS_DIR ]; then
     echo "${INFO} creating request body..."
@@ -184,7 +184,7 @@ function import_validators() {
   echo "${INFO} validators imported"
 }
 
-function runCharon() {
+function run_charon() {
   # Check if the cluster definition file exists
   if [ -f "$CHARON_LOCK_FILE" ]; then
     exec charon run --private-key-file=$CHARON_DATA_DIR/charon-enr-private-key --lock-file=$CHARON_LOCK_FILE
@@ -200,12 +200,12 @@ function runCharon() {
 ########
 
 echo "${INFO} get the current beacon chain in use"
-getBeaconNodeEndpoint
+get_beacon_node_endpoint
 echo "${INFO} getting the ENR..."
-getENR
+get_ENR
 echo "${INFO} checking for DKG ceremony..."
-checkDKG
+check_DKG
 echo "${INFO} importing keys into validator..."
-importKey
+import_key
 echo "${INFO} starting charon.."
-runCharon
+run_charon
