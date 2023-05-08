@@ -42,6 +42,8 @@ services:
       VALIDATORS_GRAFFITI: validating_from_DAppNode
       EXTRA_OPTS: ""
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.0"
+    security_opt:
+      - "seccomp:unconfined"
 volumes:
   charon-data: {}
   teku-prater-data: {}
