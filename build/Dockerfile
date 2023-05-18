@@ -4,7 +4,7 @@ FROM obolnetwork/charon:${UPSTREAM_VERSION}
 
 USER root
 
-RUN apk add --no-cache bash curl jq
+RUN apt install curl jq -y
 
 RUN mkdir -p /opt/charon/.charon && chown -R charon:charon /opt/charon
 
