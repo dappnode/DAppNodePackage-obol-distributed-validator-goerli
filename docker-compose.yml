@@ -5,7 +5,7 @@ services:
       context: ./build
       args:
         UPSTREAM_VERSION: v0.15.0
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.0"
+    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
       - "charon-data:/opt/charon/.charon"
@@ -13,10 +13,7 @@ services:
       - DEFINITION_FILE
       - CHARON_LOG_LEVEL=info
       - CHARON_LOG_FORMAT=console
-      - >-
-        CHARON_P2P_RELAYS=https://0.relay.obol.tech/enr,http://bootnode.lb.gcp.obol.tech:3640/enr
       - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3611"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3631"
       - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
@@ -41,7 +38,7 @@ services:
       TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT: "0x0000000000000000000000000000000000000000"
       VALIDATORS_GRAFFITI: validating_from_DAppNode
       EXTRA_OPTS: ""
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.0"
+    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
 volumes:
