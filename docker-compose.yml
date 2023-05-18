@@ -13,8 +13,6 @@ services:
       - DEFINITION_FILE
       - CHARON_LOG_LEVEL=info
       - CHARON_LOG_FORMAT=console
-      - >-
-        CHARON_P2P_RELAYS=https://0.relay.obol.tech/enr,http://bootnode.lb.gcp.obol.tech:3640/enr
       - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3611"
       - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3631"
       - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
