@@ -3,10 +3,10 @@ fields:
   - id: definition-file
     target:
       type: fileUpload
-      path: /opt/charon/.charon
+      path: /opt/charon/.charon/definition.tar.xz
       service: charon
     title: Definition File for the Distributed Key Generation (DKG) ceremony
     description: |
-      Provide here the definition file obtained from the DKG ceremony coordinator.
+      Provide here the definition file provided by Ether.fi in _.tar.xz_ format.
     required: true
     secret: false

@@ -15,10 +15,11 @@ GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
 
 CHARON_DATA_DIR=/opt/charon/.charon
-ENR_PRIVATE_KEY=$CHARON_DATA_DIR/charon-enr-private-key
-CHARON_CLUSTER_LOCK_FILE=$CHARON_DATA_DIR/charon-cluster.lock
-DEPOSIT_DATA_FILE=$CHARON_DATA_DIR/deposit-data.json
+CHARON_DEFINITION_FILE=$CHARON_DATA_DIR/definition.tar.xz
+ENR_PRIVATE_KEY_FILE=$CHARON_DATA_DIR/charon-enr-private-key
+CHARON_LOCK_FILE=$CHARON_DATA_DIR/charon-cluster.lock
 VALIDATOR_KEYS_DIR=$CHARON_DATA_DIR/validator_keys
+REQUEST_BODY_FILE=$CHARON_DATA_DIR/request-body.json
 
 TEKU_SECURITY_DIR=/opt/charon/teku/security
 TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
@@ -29,6 +30,30 @@ TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 #############
 # FUNCTIONS #
 #############
+
+# Checks if the cluster definition file exists
+function is_charon_definition_imported() {
+  if [ -f "$CHARON_LOCK_FILE" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Extracts the files in /opt/charron/.charon/definition.tar.xz to /opt/charon/.charon
+# Exits if the file does not exist
+function import_charon_definition() {
+  if [ -f "$CHARON_DEFINITION_FILE" ]; then
+    echo "${INFO} extracting cluster definition file..."
+    ls -la $CHARON_DATA_DIR
+    tar -xf $CHARON_DEFINITION_FILE -C $CHARON_DATA_DIR
+    echo "${INFO} cluster definition file extracted"
+  else
+    echo "${ERROR} cluster definition file does not exist"
+    sleep 300 # Wait 5 minutes to avoid restarting the container
+    exit 1
+  fi
+}
 
 # Get the current beacon chain in use
 # Assign proper value to _DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER.
@@ -50,7 +75,7 @@ function get_beacon_node_endpoint() {
     export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-prater.dappnode:3500"
     ;;
   *)
-    echo "_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER env is not set propertly"
+    echo "_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER env is not set properly"
     sleep 300 # Wait 5 minutes to avoid restarting the container
     ;;
   esac
@@ -89,7 +114,7 @@ function create_request_body_file() {
 function import_validators() {
   HTTP_RESPONSE=$(curl -X POST \
     --silent \
-    -k --cert-type P12 --cert /${TEKU_CERT_FILE}:${TEKU_CERT_PASS} \
+    -k --cert-type P12 --cert ${TEKU_CERT_FILE}:${TEKU_CERT_PASS} \
     -w "HTTPSTATUS:%{http_code}" \
     -d @"${REQUEST_BODY_FILE}" \
     --retry 30 \
@@ -107,7 +132,7 @@ function import_validators() {
   HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 
   if [ ! $HTTP_STATUS -eq 200 ]; then
-    echo "[ERROR] failed to import keys into validator"
+    echo "${ERROR} failed to import keys into validator: ${HTTP_BODY}"
     exit 1
   else
     echo "${INFO} validator response: ${HTTP_BODY}"
@@ -117,23 +142,27 @@ function import_validators() {
 }
 
 function run_charon() {
-  # Check if the cluster definition file exists
-  if [ -f "$CHARON_LOCK_FILE" ]; then
-    exec charon run --private-key-file=$CHARON_DATA_DIR/charon-enr-private-key --lock-file=$CHARON_LOCK_FILE
-  else
-    echo "${ERROR} cluster definition file does not exist"
-    sleep 300 # Wait 5 minutes to avoid restarting the container
-    exit 1
-  fi
+  exec charon run --private-key-file=$ENR_PRIVATE_KEY_FILE --lock-file=$CHARON_LOCK_FILE
 }
 
 ########
 # MAIN #
 ########
 
+# Check if the charon cluster is already imported
+if is_charon_definition_imported; then
+  echo "${INFO} cluster definition file already imported"
+else
+  echo "${INFO} cluster definition file not imported"
+  echo "${INFO} importing cluster definition..."
+  import_charon_definition
+fi 
+
 echo "${INFO} get the current beacon chain in use"
 get_beacon_node_endpoint
+
 echo "${INFO} importing keys into validator..."
 import_key
+
 echo "${INFO} starting charon.."
 run_charon

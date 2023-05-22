@@ -4,7 +4,7 @@ FROM obolnetwork/charon:${UPSTREAM_VERSION}
 
 USER root
 
-RUN apt install curl jq -y
+RUN apt install curl jq xz-utils -y
 
 RUN mkdir -p /opt/charon/.charon && chown -R charon:charon /opt/charon
 
