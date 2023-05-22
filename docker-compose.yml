@@ -5,7 +5,7 @@ services:
       context: ./build
       args:
         UPSTREAM_VERSION: v0.15.0
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: "charon.obol-goerli-etherfi.dnp.dappnode.eth:0.1.0"
     restart: unless-stopped
     volumes:
       - "charon-data:/opt/charon/.charon"
@@ -38,7 +38,7 @@ services:
       TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT: "0x0000000000000000000000000000000000000000"
       VALIDATORS_GRAFFITI: validating_from_DAppNode
       EXTRA_OPTS: ""
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: "teku.obol-goerli-etherfi.dnp.dappnode.eth:0.1.0"
     security_opt:
       - "seccomp:unconfined"
 volumes:

@@ -10,40 +10,50 @@ WARN="[ WARN-charon-manager ]"
 INFO="[ INFO-charon-manager ]"
 
 CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
-ETH2_CLIENT_DNS="https://teku.obol-distributed-validator-goerli.dappnode:3500"
-PRIVATE_KEY=/opt/charon/.charon/charon-enr-private-key
-ENR_FILE=/opt/charon/.charon/enr
+ETH2_CLIENT_DNS="https://teku.obol-goerli-etherfi.dappnode:3500"
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
-CURRENT_DEFINITION=/opt/charon/.charon/definition_file_hash.txt
 
-if [ ! -z "$DEFINITION_FILE" ]; then
-  #Get the definition file from the environment variable and the hash
-  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE | sed 's|https://api.obol.tech/dv/||g' | tr -d "/")
-  if [[ $DEFINITION_FILE != https* ]]; then
-    DEFINITION_FILE=https://api.obol.tech/dv/$DEFINITION_FILE_HASH
-  fi
+CHARON_DATA_DIR=/opt/charon/.charon
+CHARON_DEFINITION_FILE=$CHARON_DATA_DIR/definition.tar.xz
+ENR_PRIVATE_KEY_FILE=$CHARON_DATA_DIR/charon-enr-private-key
+CHARON_LOCK_FILE=$CHARON_DATA_DIR/charon-cluster.lock
+VALIDATOR_KEYS_DIR=$CHARON_DATA_DIR/validator_keys
+REQUEST_BODY_FILE=$CHARON_DATA_DIR/request-body.json
 
-  # Create the directory where the files will be stored
-  mkdir -p /opt/charon/.charon/$DEFINITION_FILE_HASH
+TEKU_SECURITY_DIR=/opt/charon/teku/security
+TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
+TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/cert/teku_keystore_password.txt)
+TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
-  CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
-  REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
-  CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
-  VALIDATOR_KEYS_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH/validator_keys
-
-  echo $DEFINITION_FILE_HASH >$CURRENT_DEFINITION
-elif [ -f "$CURRENT_DEFINITION" ]; then
-  DEFINITION_FILE_HASH=$(cat $CURRENT_DEFINITION)
-  CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
-  REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
-  CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
-  VALIDATOR_KEYS_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH/validator_keys
-fi
 
 #############
 # FUNCTIONS #
 #############
+
+# Checks if the cluster definition file exists
+function is_charon_definition_imported() {
+  if [ -f "$CHARON_LOCK_FILE" ]; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+# Extracts the files in /opt/charron/.charon/definition.tar.xz to /opt/charon/.charon
+# Exits if the file does not exist
+function import_charon_definition() {
+  if [ -f "$CHARON_DEFINITION_FILE" ]; then
+    echo "${INFO} extracting cluster definition file..."
+    ls -la $CHARON_DATA_DIR
+    tar -xf $CHARON_DEFINITION_FILE -C $CHARON_DATA_DIR
+    echo "${INFO} cluster definition file extracted"
+  else
+    echo "${ERROR} cluster definition file does not exist"
+    sleep 300 # Wait 5 minutes to avoid restarting the container
+    exit 1
+  fi
+}
 
 # Get the current beacon chain in use
 # Assign proper value to _DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER.
@@ -65,63 +75,10 @@ function get_beacon_node_endpoint() {
     export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-prater.dappnode:3500"
     ;;
   *)
-    echo "_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER env is not set propertly"
+    echo "_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER env is not set properly"
     sleep 300 # Wait 5 minutes to avoid restarting the container
     ;;
   esac
-}
-
-# Get the ENR of the node or create it if it does not exist
-function get_ENR() {
-  # Check if ENR file exists and create it if it does not
-  if [[ ! -f "$PRIVATE_KEY" ]]; then
-    echo "${INFO} ENR does not exist, creating it..."
-    charon create enr | tee /opt/charon/.charon/create_enr.txt
-  fi
-  # Get ENR from file
-  if [[ ! -f "$ENR" ]]; then
-    grep "enr:" /opt/charon/.charon/create_enr.txt | cut -d " " -f 2 >$ENR_FILE
-    ENR=$(cat $ENR_FILE)
-    echo "${INFO} ENR: ${ENR}"
-    echo "${INFO} Publishing ENR to dappmanager..."
-    post_ENR_to_dappmanager
-  else
-    echo "${ERROR} it was not possible to get the ENR file"
-    sleep 300 # Wait 5 minutes to avoid restarting the container
-    exit 1
-  fi
-}
-
-# function to be post the ENR to dappmanager
-function post_ENR_to_dappmanager() {
-  # Post ENR to dappmanager
-  curl --connect-timeout 5 \
-    --max-time 10 \
-    --silent \
-    --retry 5 \
-    --retry-delay 0 \
-    --retry-max-time 40 \
-    -X POST "http://my.dappnode/data-send?key=ENR&data=${ENR}" ||
-    {
-      echo "[ERROR] failed to post ENR to dappmanager"
-      exit 1
-    }
-}
-
-# function to check if DKG is already done and if not, wait for it
-function check_DKG() {
-  # Check if DKG is already done
-  # by checking that DEFINITION_FILE exits but there is no CHARON_LOCK_FILE
-  if [ ! -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
-    cp $PRIVATE_KEY $CHARON_DATA_DIR
-    cp $ENR_FILE $CHARON_DATA_DIR
-    echo "${INFO} waiting for DKG ceremony..."
-    charon dkg --definition-file=$DEFINITION_FILE --data-dir=$CHARON_DATA_DIR
-  elif [ -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
-    echo "${WARN} waiting for definition file to start dkg ceremony..."
-    sleep 300 # Wait 5 minutes to avoid restarting the container
-    exit 1
-  fi
 }
 
 # function that handles the import of the validatorss
@@ -157,7 +114,7 @@ function create_request_body_file() {
 function import_validators() {
   HTTP_RESPONSE=$(curl -X POST \
     --silent \
-    -k --cert-type P12 --cert /teku_client_keystore.p12:dappnode \
+    -k --cert-type P12 --cert ${TEKU_CERT_FILE}:${TEKU_CERT_PASS} \
     -w "HTTPSTATUS:%{http_code}" \
     -d @"${REQUEST_BODY_FILE}" \
     --retry 30 \
@@ -165,7 +122,7 @@ function import_validators() {
     --retry-connrefused \
     -H "Content-Type: application/json" \
     -H "Accept: application/json" \
-    -H "Authorization: Bearer cd4892ca35d2f5d3e2301a65fc7aa660" \
+    -H "Authorization: Bearer ${TEKU_API_TOKEN}" \
     "${ETH2_CLIENT_DNS}"/eth/v1/keystores) ||
     {
       echo "[ERROR] failed to import keys into validator"
@@ -175,7 +132,7 @@ function import_validators() {
   HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
 
   if [ ! $HTTP_STATUS -eq 200 ]; then
-    echo "[ERROR] failed to import keys into validator"
+    echo "${ERROR} failed to import keys into validator: ${HTTP_BODY}"
     exit 1
   else
     echo "${INFO} validator response: ${HTTP_BODY}"
@@ -185,27 +142,27 @@ function import_validators() {
 }
 
 function run_charon() {
-  # Check if the cluster definition file exists
-  if [ -f "$CHARON_LOCK_FILE" ]; then
-    exec charon run --private-key-file=$CHARON_DATA_DIR/charon-enr-private-key --lock-file=$CHARON_LOCK_FILE
-  else
-    echo "${ERROR} cluster definition file does not exist"
-    sleep 300 # Wait 5 minutes to avoid restarting the container
-    exit 1
-  fi
+  exec charon run --private-key-file=$ENR_PRIVATE_KEY_FILE --lock-file=$CHARON_LOCK_FILE
 }
 
 ########
 # MAIN #
 ########
 
+# Check if the charon cluster is already imported
+if is_charon_definition_imported; then
+  echo "${INFO} cluster definition file already imported"
+else
+  echo "${INFO} cluster definition file not imported"
+  echo "${INFO} importing cluster definition..."
+  import_charon_definition
+fi 
+
 echo "${INFO} get the current beacon chain in use"
 get_beacon_node_endpoint
-echo "${INFO} getting the ENR..."
-get_ENR
-echo "${INFO} checking for DKG ceremony..."
-check_DKG
+
 echo "${INFO} importing keys into validator..."
 import_key
+
 echo "${INFO} starting charon.."
 run_charon
