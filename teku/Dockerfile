@@ -2,7 +2,6 @@ ARG UPSTREAM_VERSION
 FROM consensys/teku:${UPSTREAM_VERSION}
 
 USER root 
-RUN apt update && apt install curl jq ca-certificates --yes
 
 ENV JAVA_OPTS="-Xmx5g"
 
