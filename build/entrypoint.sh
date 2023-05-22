@@ -17,7 +17,7 @@ KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection
 CHARON_DATA_DIR=/opt/charon/.charon
 CHARON_DEFINITION_FILE=$CHARON_DATA_DIR/definition.tar.xz
 ENR_PRIVATE_KEY_FILE=$CHARON_DATA_DIR/charon-enr-private-key
-CHARON_LOCK_FILE=$CHARON_DATA_DIR/charon-cluster.lock
+CHARON_LOCK_FILE=$CHARON_DATA_DIR/cluster-lock.json
 VALIDATOR_KEYS_DIR=$CHARON_DATA_DIR/validator_keys
 REQUEST_BODY_FILE=$CHARON_DATA_DIR/request-body.json
 
