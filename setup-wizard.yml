@@ -3,10 +3,10 @@ fields:
   - id: definition-file
     target:
       type: fileUpload
-      path:
+      path: /opt/charon/.charon
       service: charon
     title: Definition File for the Distributed Key Generation (DKG) ceremony
     description: |
       Provide here the definition file obtained from the DKG ceremony coordinator.
-    required: false
+    required: true
     secret: false
