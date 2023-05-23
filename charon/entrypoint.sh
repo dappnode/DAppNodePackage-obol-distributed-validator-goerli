@@ -9,13 +9,20 @@ ERROR="[ ERROR-charon-manager ]"
 WARN="[ WARN-charon-manager ]"
 INFO="[ INFO-charon-manager ]"
 
+CHARON_ROOT_DIR=/opt/charon/.charon
+ENR_PRIVATE_KEY_FILE=${CHARON_ROOT_DIR}/charon-enr-private-key
+ENR_FILE=${CHARON_ROOT_DIR}/enr
+CURRENT_DEFINITION=${CHARON_ROOT_DIR}/definition_file_hash.txt
+
 CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
 ETH2_CLIENT_DNS="https://teku.obol-distributed-validator-goerli.dappnode:3500"
-PRIVATE_KEY=/opt/charon/.charon/charon-enr-private-key
-ENR_FILE=/opt/charon/.charon/enr
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
-CURRENT_DEFINITION=/opt/charon/.charon/definition_file_hash.txt
+
+TEKU_SECURITY_DIR=/opt/charon/teku/security
+TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
+TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/cert/teku_keystore_password.txt)
+TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
 if [ ! -z "$DEFINITION_FILE" ]; then
   #Get the definition file from the environment variable and the hash
@@ -25,20 +32,20 @@ if [ ! -z "$DEFINITION_FILE" ]; then
   fi
 
   # Create the directory where the files will be stored
-  mkdir -p /opt/charon/.charon/$DEFINITION_FILE_HASH
+  mkdir -p ${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH
 
-  CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
-  REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
-  CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
-  VALIDATOR_KEYS_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH/validator_keys
+  CHARON_LOCK_FILE=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/cluster-lock.json
+  REQUEST_BODY_FILE=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/request-body.json
+  CHARON_DATA_DIR=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH
+  VALIDATOR_KEYS_DIR=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/validator_keys
 
   echo $DEFINITION_FILE_HASH >$CURRENT_DEFINITION
 elif [ -f "$CURRENT_DEFINITION" ]; then
   DEFINITION_FILE_HASH=$(cat $CURRENT_DEFINITION)
-  CHARON_LOCK_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/cluster-lock.json
-  REQUEST_BODY_FILE=/opt/charon/.charon/$DEFINITION_FILE_HASH/request-body.json
-  CHARON_DATA_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH
-  VALIDATOR_KEYS_DIR=/opt/charon/.charon/$DEFINITION_FILE_HASH/validator_keys
+  CHARON_LOCK_FILE=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/cluster-lock.json
+  REQUEST_BODY_FILE=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/request-body.json
+  CHARON_DATA_DIR=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH
+  VALIDATOR_KEYS_DIR=${CHARON_ROOT_DIR}/$DEFINITION_FILE_HASH/validator_keys
 fi
 
 #############
@@ -74,13 +81,13 @@ function get_beacon_node_endpoint() {
 # Get the ENR of the node or create it if it does not exist
 function get_ENR() {
   # Check if ENR file exists and create it if it does not
-  if [[ ! -f "$PRIVATE_KEY" ]]; then
+  if [[ ! -f "$ENR_PRIVATE_KEY_FILE" ]]; then
     echo "${INFO} ENR does not exist, creating it..."
-    charon create enr | tee /opt/charon/.charon/create_enr.txt
+    charon create enr | tee ${CHARON_ROOT_DIR}/create_enr.txt
   fi
   # Get ENR from file
   if [[ ! -f "$ENR" ]]; then
-    grep "enr:" /opt/charon/.charon/create_enr.txt | cut -d " " -f 2 >$ENR_FILE
+    grep "enr:" ${CHARON_ROOT_DIR}/create_enr.txt | cut -d " " -f 2 >$ENR_FILE
     ENR=$(cat $ENR_FILE)
     echo "${INFO} ENR: ${ENR}"
     echo "${INFO} Publishing ENR to dappmanager..."
@@ -113,7 +120,7 @@ function check_DKG() {
   # Check if DKG is already done
   # by checking that DEFINITION_FILE exits but there is no CHARON_LOCK_FILE
   if [ ! -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
-    cp $PRIVATE_KEY $CHARON_DATA_DIR
+    cp $ENR_PRIVATE_KEY_FILE $CHARON_DATA_DIR
     cp $ENR_FILE $CHARON_DATA_DIR
     echo "${INFO} waiting for DKG ceremony..."
     charon dkg --definition-file=$DEFINITION_FILE --data-dir=$CHARON_DATA_DIR
@@ -157,7 +164,7 @@ function create_request_body_file() {
 function import_validators() {
   HTTP_RESPONSE=$(curl -X POST \
     --silent \
-    -k --cert-type P12 --cert /teku_client_keystore.p12:dappnode \
+    -k --cert-type P12 --cert ${TEKU_CERT_FILE}:${TEKU_CERT_PASS} \
     -w "HTTPSTATUS:%{http_code}" \
     -d @"${REQUEST_BODY_FILE}" \
     --retry 30 \
@@ -165,7 +172,7 @@ function import_validators() {
     --retry-connrefused \
     -H "Content-Type: application/json" \
     -H "Accept: application/json" \
-    -H "Authorization: Bearer cd4892ca35d2f5d3e2301a65fc7aa660" \
+    -H "Authorization: Bearer ${TEKU_API_TOKEN}" \
     "${ETH2_CLIENT_DNS}"/eth/v1/keystores) ||
     {
       echo "[ERROR] failed to import keys into validator"
