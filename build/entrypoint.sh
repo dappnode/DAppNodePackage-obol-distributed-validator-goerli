@@ -14,12 +14,12 @@ ETH2_CLIENT_DNS="https://teku.obol-goerli-etherfi.dappnode:3500"
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
 
-CHARON_DATA_DIR=/opt/charon/.charon
-CHARON_DEFINITION_FILE=$CHARON_DATA_DIR/definition.tar.xz
-ENR_PRIVATE_KEY_FILE=$CHARON_DATA_DIR/charon-enr-private-key
-CHARON_LOCK_FILE=$CHARON_DATA_DIR/cluster-lock.json
-VALIDATOR_KEYS_DIR=$CHARON_DATA_DIR/validator_keys
-REQUEST_BODY_FILE=$CHARON_DATA_DIR/request-body.json
+CHARON_ROOT_DIR=/opt/charon/.charon
+CHARON_DEFINITION_FILE=$CHARON_ROOT_DIR/definition.tar.xz
+ENR_PRIVATE_KEY_FILE=$CHARON_ROOT_DIR/charon-enr-private-key
+CHARON_LOCK_FILE=$CHARON_ROOT_DIR/cluster-lock.json
+VALIDATOR_KEYS_DIR=$CHARON_ROOT_DIR/validator_keys
+REQUEST_BODY_FILE=$CHARON_ROOT_DIR/request-body.json
 
 TEKU_SECURITY_DIR=/opt/charon/teku/security
 TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
@@ -45,8 +45,7 @@ function is_charon_definition_imported() {
 function import_charon_definition() {
   if [ -f "$CHARON_DEFINITION_FILE" ]; then
     echo "${INFO} extracting cluster definition file..."
-    ls -la $CHARON_DATA_DIR
-    tar -xf $CHARON_DEFINITION_FILE -C $CHARON_DATA_DIR
+    tar -xf $CHARON_DEFINITION_FILE -C $CHARON_ROOT_DIR
     echo "${INFO} cluster definition file extracted"
   else
     echo "${ERROR} cluster definition file does not exist"
@@ -79,6 +78,11 @@ function get_beacon_node_endpoint() {
     sleep 300 # Wait 5 minutes to avoid restarting the container
     ;;
   esac
+
+  # Append FALLBACK_BEACON_CHAIN_ENDPOINTS if it is not empty
+  if [ -n "$FALLBACK_BEACON_CHAIN_ENDPOINTS" ]; then
+    export CHARON_BEACON_NODE_ENDPOINTS="${CHARON_BEACON_NODE_ENDPOINTS},${FALLBACK_BEACON_CHAIN_ENDPOINTS}"
+  fi
 }
 
 # function that handles the import of the validatorss
