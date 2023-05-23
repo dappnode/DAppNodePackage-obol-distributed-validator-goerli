@@ -2,7 +2,7 @@ version: "3.5"
 services:
   charon:
     build:
-      context: ./build
+      context: ./charon
       args:
         UPSTREAM_VERSION: v0.15.0
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
