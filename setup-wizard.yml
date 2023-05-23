@@ -10,3 +10,12 @@ fields:
       Provide here the definition file provided by Ether.fi in _.tar.xz_ format.
     required: true
     secret: false
+  - id: fallback-beacon-chain-endpoints
+    target:
+      type: environment
+      name: FALLBACK_BEACON_CHAIN_ENDPOINTS
+      service: charon
+    title: Fallback Beacon Chain Endpoints (comma-separated, optional)
+    description: |
+      Provide here a comma-separated list of Beacon Chain endpoints to be used as fallbacks in case the primary endpoint fails.
+    required: false
