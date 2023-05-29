@@ -46,7 +46,18 @@ function import_charon_definition() {
   if [ -f "$CHARON_DEFINITION_FILE" ]; then
     echo "${INFO} extracting cluster definition file..."
     tar -xf $CHARON_DEFINITION_FILE -C $CHARON_ROOT_DIR
-    echo "${INFO} cluster definition file extracted"
+
+    # If there is a dir called node* inside CHARON_ROOT_DIR, move its content to CHARON_ROOT_DIR
+    if [ -d "$CHARON_ROOT_DIR"/node* ]; then
+      echo "${INFO} moving files from ${CHARON_ROOT_DIR}/node* to ${CHARON_ROOT_DIR}"
+      mv $CHARON_ROOT_DIR/node*/* $CHARON_ROOT_DIR
+      rm -rf $CHARON_ROOT_DIR/node*
+    fi
+
+    echo "${INFO} current files in ${CHARON_ROOT_DIR}:"
+    ls $CHARON_ROOT_DIR
+
+    echo "${INFO} cluster definition file import completed"
   else
     echo "${ERROR} cluster definition file does not exist"
     sleep 300 # Wait 5 minutes to avoid restarting the container
