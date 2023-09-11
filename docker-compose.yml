@@ -27,7 +27,7 @@ services:
     build:
       context: ./teku
       args:
-        UPSTREAM_VERSION: v0.17.0
+        TEKU_VERSION: 23.8.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
