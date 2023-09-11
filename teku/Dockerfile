@@ -1,5 +1,5 @@
-ARG UPSTREAM_VERSION
-FROM consensys/teku:${UPSTREAM_VERSION}
+ARG TEKU_VERSION
+FROM consensys/teku:${TEKU_VERSION}
 
 USER root 
 RUN apt update && apt install curl jq ca-certificates --yes
