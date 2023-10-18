@@ -24,11 +24,11 @@ TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
 TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/cert/teku_keystore_password.txt)
 TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
-if [ ! -z "$DEFINITION_FILE" ]; then
+if [ ! -z "$DEFINITION_FILE_URL" ]; then
   #Get the definition file from the environment variable and the hash
-  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE | sed 's|https://api.obol.tech/dv/||g' | tr -d "/")
-  if [[ $DEFINITION_FILE != https* ]]; then
-    DEFINITION_FILE=https://api.obol.tech/dv/$DEFINITION_FILE_HASH
+  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE_URL | sed 's|https://api.obol.tech/dv/||g' | tr -d "/")
+  if [[ $DEFINITION_FILE_URL != https* ]]; then
+    DEFINITION_FILE_URL=https://api.obol.tech/dv/$DEFINITION_FILE_HASH
   fi
 
   # Create the directory where the files will be stored
@@ -118,13 +118,13 @@ function post_ENR_to_dappmanager() {
 # function to check if DKG is already done and if not, wait for it
 function check_DKG() {
   # Check if DKG is already done
-  # by checking that DEFINITION_FILE exits but there is no CHARON_LOCK_FILE
-  if [ ! -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
+  # by checking that DEFINITION_FILE_URL exits but there is no CHARON_LOCK_FILE
+  if [ ! -z "$DEFINITION_FILE_URL" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
     cp $ENR_PRIVATE_KEY_FILE $CHARON_DATA_DIR
     cp $ENR_FILE $CHARON_DATA_DIR
     echo "${INFO} waiting for DKG ceremony..."
-    charon dkg --definition-file=$DEFINITION_FILE --data-dir=$CHARON_DATA_DIR
-  elif [ -z "$DEFINITION_FILE" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
+    charon dkg --definition-file=$DEFINITION_FILE_URL --data-dir=$CHARON_DATA_DIR
+  elif [ -z "$DEFINITION_FILE_URL" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
     echo "${WARN} waiting for definition file to start dkg ceremony..."
     sleep 300 # Wait 5 minutes to avoid restarting the container
     exit 1
