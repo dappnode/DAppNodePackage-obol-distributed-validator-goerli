@@ -7,7 +7,7 @@ services:
         UPSTREAM_VERSION: v0.17.0
         CLUSTER_ID: 1
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    restart: unless-stopped
+    restart: on-failure
     volumes:
       - "charon-1-data:/opt/charon/.charon"
     environment:
@@ -30,7 +30,7 @@ services:
       args:
         TEKU_VERSION: 23.10.0
         CLUSTER_ID: 1
-    restart: unless-stopped
+    restart: on-failure
     volumes:
       - "teku-1-data:/opt/teku/data"
     environment:
