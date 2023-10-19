@@ -15,13 +15,13 @@ ENR_FILE=${CHARON_ROOT_DIR}/enr
 CURRENT_DEFINITION=${CHARON_ROOT_DIR}/definition_file_hash.txt
 
 CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
-ETH2_CLIENT_DNS="https://teku.obol-distributed-validator-goerli.dappnode:3500"
+ETH2_CLIENT_DNS="https://teku-validator-${CLUSTER_ID}.obol-distributed-validator-goerli.dappnode:3500"
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
 
 TEKU_SECURITY_DIR=/opt/charon/teku/security
-TEKU_CERT_FILE=$TEKU_SECURITY_DIR/cert/teku_client_keystore.p12
-TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/cert/teku_keystore_password.txt)
+TEKU_CERT_FILE=$TEKU_SECURITY_DIR/certs/teku_${CLUSTER_ID}_certificate.p12
+TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt)
 TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
 if [ ! -z "$DEFINITION_FILE_URL" ]; then
