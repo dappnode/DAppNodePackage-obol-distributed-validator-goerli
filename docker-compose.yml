@@ -5,6 +5,7 @@ services:
       context: ./charon
       args:
         UPSTREAM_VERSION: v0.17.0
+        CLUSTER_ID: 1
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
@@ -18,7 +19,6 @@ services:
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon
-      - CLUSTER_ID=1
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
@@ -29,6 +29,7 @@ services:
       context: ./teku
       args:
         TEKU_VERSION: 23.10.0
+        CLUSTER_ID: 1
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -39,7 +40,6 @@ services:
       - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
       - VALIDATORS_GRAFFITI=validating_from_DAppNode
       - EXTRA_OPTS
-      - CLUSTER_ID=1
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
@@ -48,6 +48,7 @@ services:
       context: ./charon
       args:
         UPSTREAM_VERSION: v0.17.0
+        CLUSTER_ID: 2
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
@@ -61,7 +62,6 @@ services:
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon
-      - CLUSTER_ID=2
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
@@ -72,6 +72,7 @@ services:
       context: ./teku
       args:
         TEKU_VERSION: 23.10.0
+        CLUSTER_ID: 2
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -82,7 +83,6 @@ services:
       - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
       - VALIDATORS_GRAFFITI=validating_from_DAppNode
       - EXTRA_OPTS
-      - CLUSTER_ID=2
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
@@ -91,6 +91,7 @@ services:
       context: ./charon
       args:
         UPSTREAM_VERSION: v0.17.0
+        CLUSTER_ID: 3
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
@@ -104,7 +105,6 @@ services:
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon
-      - CLUSTER_ID=3
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
@@ -115,6 +115,7 @@ services:
       context: ./teku
       args:
         TEKU_VERSION: 23.10.0
+        CLUSTER_ID: 3
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -125,7 +126,6 @@ services:
       - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
       - VALIDATORS_GRAFFITI=validating_from_DAppNode
       - EXTRA_OPTS
-      - CLUSTER_ID=3
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
@@ -134,6 +134,7 @@ services:
       context: ./charon
       args:
         UPSTREAM_VERSION: v0.17.0
+        CLUSTER_ID: 4
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
@@ -147,7 +148,6 @@ services:
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon
-      - CLUSTER_ID=1
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
@@ -158,6 +158,7 @@ services:
       context: ./teku
       args:
         TEKU_VERSION: 23.10.0
+        CLUSTER_ID: 4
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -168,7 +169,6 @@ services:
       - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
       - VALIDATORS_GRAFFITI=validating_from_DAppNode
       - EXTRA_OPTS
-      - CLUSTER_ID=4
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
@@ -177,6 +177,7 @@ services:
       context: ./charon
       args:
         UPSTREAM_VERSION: v0.17.0
+        CLUSTER_ID: 5
     image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: unless-stopped
     volumes:
@@ -190,7 +191,6 @@ services:
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon
-      - CLUSTER_ID=5
     ports:
       - "3611:3611/tcp"
       - "3631:3631/udp"
@@ -201,6 +201,7 @@ services:
       context: ./teku
       args:
         TEKU_VERSION: 23.10.0
+        CLUSTER_ID: 5
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -211,7 +212,6 @@ services:
       - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
       - VALIDATORS_GRAFFITI=validating_from_DAppNode
       - EXTRA_OPTS
-      - CLUSTER_ID=5
     image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
