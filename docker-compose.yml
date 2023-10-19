@@ -211,13 +211,13 @@ services:
     security_opt:
       - "seccomp:unconfined"
 volumes:
-  charon-1-data:
-  charon-2-data:
-  charon-3-data:
-  charon-4-data:
-  charon-5-data:
-  teku-1-data:
-  teku-2-data:
-  teku-3-data:
-  teku-4-data:
-  teku-5-data:
+  charon-1-data: {}
+  charon-2-data: {}
+  charon-3-data: {}
+  charon-4-data: {}
+  charon-5-data: {}
+  teku-1-data: {}
+  teku-2-data: {}
+  teku-3-data: {}
+  teku-4-data: {}
+  teku-5-data: {}
