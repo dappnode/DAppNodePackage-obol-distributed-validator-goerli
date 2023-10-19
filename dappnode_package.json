@@ -16,13 +16,33 @@
     {
       "name": "keystore",
       "path": "/opt/charon/.charon",
-      "service": "charon"
+      "service": "charon-1"
+    },
+    {
+      "name": "keystore",
+      "path": "/opt/charon/.charon",
+      "service": "charon-2"
+    },
+    {
+      "name": "keystore",
+      "path": "/opt/charon/.charon",
+      "service": "charon-3"
+    },
+    {
+      "name": "keystore",
+      "path": "/opt/charon/.charon",
+      "service": "charon-4"
+    },
+    {
+      "name": "keystore",
+      "path": "/opt/charon/.charon",
+      "service": "charon-5"
     }
   ],
   "globalEnvs": [
     {
       "envs": ["CONSENSUS_CLIENT_PRATER", "DOMAIN", "PUBLIC_IP"],
-      "services": ["charon"]
+      "services": ["charon-1", "charon-2", "charon-3", "charon-4", "charon-5"]
     }
   ],
   "license": "GPL-3.0",
