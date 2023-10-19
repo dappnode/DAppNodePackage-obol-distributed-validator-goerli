@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# TODO: How to handle p12 keystore?
+
 # Teku must start with the current env due to JAVA_HOME var
 exec /opt/teku/bin/teku --log-destination=CONSOLE \
   validator-client \
@@ -12,8 +14,8 @@ exec /opt/teku/bin/teku --log-destination=CONSOLE \
   --validator-api-interface=0.0.0.0 \
   --validator-api-port=3500 \
   --validator-api-host-allowlist=* \
-  --validator-api-keystore-file=/cert/teku_client_keystore.p12 \
-  --validator-api-keystore-password-file=/cert/teku_keystore_password.txt \
+  --validator-api-keystore-file="/certs/teku_${CLUSTER_ID}_certificate.p12" \
+  --validator-api-keystore-password-file=/certs/teku_certificate_pass.txt \
   --logging=${LOG_TYPE} \
   --validators-keystore-locking-enabled=false \
   ${EXTRA_OPTS}
