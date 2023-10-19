@@ -28,7 +28,7 @@ services:
     build:
       context: ./teku
       args:
-        TEKU_VERSION: 23.8.0
+        TEKU_VERSION: 23.10.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -71,7 +71,7 @@ services:
     build:
       context: ./teku
       args:
-        TEKU_VERSION: 23.8.0
+        TEKU_VERSION: 23.10.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -114,7 +114,7 @@ services:
     build:
       context: ./teku
       args:
-        TEKU_VERSION: 23.8.0
+        TEKU_VERSION: 23.10.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -157,7 +157,7 @@ services:
     build:
       context: ./teku
       args:
-        TEKU_VERSION: 23.8.0
+        TEKU_VERSION: 23.10.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
@@ -200,7 +200,7 @@ services:
     build:
       context: ./teku
       args:
-        TEKU_VERSION: 23.8.0
+        TEKU_VERSION: 23.10.0
     restart: unless-stopped
     volumes:
       - "teku-prater-data:/opt/teku/data"
