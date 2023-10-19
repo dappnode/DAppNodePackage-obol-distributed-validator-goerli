@@ -108,7 +108,7 @@ function post_ENR_to_dappmanager() {
     --retry 5 \
     --retry-delay 0 \
     --retry-max-time 40 \
-    -X POST "http://my.dappnode/data-send?key=ENR&data=${ENR}" ||
+    -X POST "http://my.dappnode/data-send?key=ENR%08Cluster%08${CLUSTER_ID}&data=${ENR}" ||
     {
       echo "[ERROR] failed to post ENR to dappmanager"
       exit 1
@@ -125,9 +125,8 @@ function check_DKG() {
     echo "${INFO} waiting for DKG ceremony..."
     charon dkg --definition-file=$DEFINITION_FILE_URL --data-dir=$CHARON_DATA_DIR
   elif [ -z "$DEFINITION_FILE_URL" ] && [ ! -f "$CHARON_LOCK_FILE" ]; then
-    echo "${WARN} waiting for definition file to start dkg ceremony..."
-    sleep 300 # Wait 5 minutes to avoid restarting the container
-    exit 1
+    echo "${INFO} Set the definition file URL in the charon config to start DKG ceremony..."
+    exit 0 # Exit to stop container until the definition file is set
   fi
 }
 
