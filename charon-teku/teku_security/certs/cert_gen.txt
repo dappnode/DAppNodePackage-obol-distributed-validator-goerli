@@ -1,0 +1,1 @@
+keytool -genkeypair -keystore teku_1_certificate.p12 -storetype PKCS12 --storepass dappnode -alias localhost -keyalg RSA -keysize 2048 -validity 109500 -dname "CN=charon-teku-1.obol-distributed-validator-goerli.dappnode"

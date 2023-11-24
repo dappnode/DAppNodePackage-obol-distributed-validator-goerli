@@ -1,223 +1,38 @@
 version: "3.5"
 services:
-  charon-1:
+  charon-teku-1:
     build:
-      context: ./charon
+      context: charon-teku
       args:
         UPSTREAM_VERSION: v0.17.0
+        TEKU_VERSION: 23.11.0
         CLUSTER_ID: 1
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     restart: on-failure
     volumes:
       - "charon-1-data:/opt/charon/.charon"
+      - "teku-1-data:/opt/teku/data"
     environment:
       - DEFINITION_FILE_URL
       - CHARON_LOG_LEVEL=info
-      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3611"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3631"
+      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3911"
+      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3931"
       - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
       - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
       - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
       - CHARON_LOKI_SERVICE=charon-1
+      - TEKU_LOGGING=INFO
+      - >-
+        TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
+      - TEKU_VALIDATORS_GRAFFITI=validating_from_DAppNode
+      - TEKU_EXTRA_OPTS
     ports:
-      - "3611:3611/tcp"
-      - "3631:3631/udp"
+      - "3911:3911/tcp"
+      - "3931:3931/udp"
     healthcheck:
       test: "wget -qO- http://localhost:3620/readyz"
-  teku-validator-1:
-    build:
-      context: ./teku
-      args:
-        TEKU_VERSION: 23.10.0
-        CLUSTER_ID: 1
-    restart: on-failure
-    volumes:
-      - "teku-1-data:/opt/teku/data"
-    environment:
-      - LOG_TYPE=INFO
-      - TEKU_BEACON_NODE_API_ENDPOINT="http://charon-1:3600"
-      - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
-      - VALIDATORS_GRAFFITI=validating_from_DAppNode
-      - EXTRA_OPTS
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
     security_opt:
       - "seccomp:unconfined"
-  charon-2:
-    build:
-      context: ./charon
-      args:
-        UPSTREAM_VERSION: v0.17.0
-        CLUSTER_ID: 2
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    restart: on-failure
-    volumes:
-      - "charon-2-data:/opt/charon/.charon"
-    environment:
-      - DEFINITION_FILE_URL
-      - CHARON_LOG_LEVEL=info
-      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3612"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3632"
-      - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
-      - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
-      - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
-      - CHARON_LOKI_SERVICE=charon-2
-    ports:
-      - "3612:3612/tcp"
-      - "3632:3632/udp"
-    healthcheck:
-      test: "wget -qO- http://localhost:3620/readyz"
-  teku-validator-2:
-    build:
-      context: ./teku
-      args:
-        TEKU_VERSION: 23.10.0
-        CLUSTER_ID: 2
-    restart: on-failure
-    volumes:
-      - "teku-2-data:/opt/teku/data"
-    environment:
-      - LOG_TYPE=INFO
-      - TEKU_BEACON_NODE_API_ENDPOINT="http://charon-2:3600"
-      - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
-      - VALIDATORS_GRAFFITI=validating_from_DAppNode
-      - EXTRA_OPTS
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    security_opt:
-      - "seccomp:unconfined"
-  charon-3:
-    build:
-      context: ./charon
-      args:
-        UPSTREAM_VERSION: v0.17.0
-        CLUSTER_ID: 3
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    restart: on-failure
-    volumes:
-      - "charon-3-data:/opt/charon/.charon"
-    environment:
-      - DEFINITION_FILE_URL
-      - CHARON_LOG_LEVEL=info
-      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3613"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3633"
-      - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
-      - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
-      - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
-      - CHARON_LOKI_SERVICE=charon-3
-    ports:
-      - "3613:3613/tcp"
-      - "3633:3633/udp"
-    healthcheck:
-      test: "wget -qO- http://localhost:3620/readyz"
-  teku-validator-3:
-    build:
-      context: ./teku
-      args:
-        TEKU_VERSION: 23.10.0
-        CLUSTER_ID: 3
-    restart: on-failure
-    volumes:
-      - "teku-3-data:/opt/teku/data"
-    environment:
-      - LOG_TYPE=INFO
-      - TEKU_BEACON_NODE_API_ENDPOINT="http://charon-3:3600"
-      - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
-      - VALIDATORS_GRAFFITI=validating_from_DAppNode
-      - EXTRA_OPTS
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    security_opt:
-      - "seccomp:unconfined"
-  charon-4:
-    build:
-      context: ./charon
-      args:
-        UPSTREAM_VERSION: v0.17.0
-        CLUSTER_ID: 4
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    restart: on-failure
-    volumes:
-      - "charon-4-data:/opt/charon/.charon"
-    environment:
-      - DEFINITION_FILE_URL
-      - CHARON_LOG_LEVEL=info
-      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3614"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3634"
-      - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
-      - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
-      - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
-      - CHARON_LOKI_SERVICE=charon-4
-    ports:
-      - "3614:3614/tcp"
-      - "3634:3634/udp"
-    healthcheck:
-      test: "wget -qO- http://localhost:3620/readyz"
-  teku-validator-4:
-    build:
-      context: ./teku
-      args:
-        TEKU_VERSION: 23.10.0
-        CLUSTER_ID: 4
-    restart: on-failure
-    volumes:
-      - "teku-4-data:/opt/teku/data"
-    environment:
-      - LOG_TYPE=INFO
-      - TEKU_BEACON_NODE_API_ENDPOINT="http://charon-4:3600"
-      - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
-      - VALIDATORS_GRAFFITI=validating_from_DAppNode
-      - EXTRA_OPTS
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    security_opt:
-      - "seccomp:unconfined"
-  charon-5:
-    build:
-      context: ./charon
-      args:
-        UPSTREAM_VERSION: v0.17.0
-        CLUSTER_ID: 5
-    image: "charon.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    restart: on-failure
-    volumes:
-      - "charon-5-data:/opt/charon/.charon"
-    environment:
-      - DEFINITION_FILE_URL
-      - CHARON_LOG_LEVEL=info
-      - "CHARON_P2P_TCP_ADDRESS=0.0.0.0:3615"
-      - "CHARON_P2P_UDP_ADDRESS=0.0.0.0:3635"
-      - "CHARON_VALIDATOR_API_ADDRESS=0.0.0.0:3600"
-      - "CHARON_MONITORING_ADDRESS=0.0.0.0:3620"
-      - "CHARON_LOKI_ADDRESSES=http://loki.dms.dappnode:3100/loki/api/v1/push"
-      - CHARON_LOKI_SERVICE=charon-5
-    ports:
-      - "3615:3615/tcp"
-      - "3635:3635/udp"
-    healthcheck:
-      test: "wget -qO- http://localhost:3620/readyz"
-  teku-validator-5:
-    build:
-      context: ./teku
-      args:
-        TEKU_VERSION: 23.10.0
-        CLUSTER_ID: 5
-    restart: on-failure
-    volumes:
-      - "teku-5-data:/opt/teku/data"
-    environment:
-      - LOG_TYPE=INFO
-      - TEKU_BEACON_NODE_API_ENDPOINT="http://charon:3600"
-      - TEKU_VALIDATORS_PROPOSER_DEFAULT_FEE_RECIPIENT="0x0000000000000000000000000000000000000000"
-      - VALIDATORS_GRAFFITI=validating_from_DAppNode
-      - EXTRA_OPTS
-    image: "teku.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
-    security_opt:
-      - "seccomp:unconfined"
+    image: "charon-teku-1.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
 volumes:
   charon-1-data: {}
-  charon-2-data: {}
-  charon-3-data: {}
-  charon-4-data: {}
-  charon-5-data: {}
   teku-1-data: {}
-  teku-2-data: {}
-  teku-3-data: {}
-  teku-4-data: {}
-  teku-5-data: {}
