@@ -16,15 +16,14 @@ ENR_FILE=${CHARON_ROOT_DIR}/enr
 DEFINITION_FILE_HASH_FILE=${CHARON_ROOT_DIR}/definition_file_hash.txt
 
 CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
-# TODO: Modify this when Teku is in localhost
 VALIDATOR_URL="https://localhost:3500"
 GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
 KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
 
 TEKU_SECURITY_DIR=/opt/charon/security
-# TODO: Modify the cert file when Teku is in localhost
 TEKU_CERT_FILE=$TEKU_SECURITY_DIR/certs/teku_${CLUSTER_ID}_certificate.p12
-TEKU_CERT_PASS=$(cat $TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt)
+TEKU_CERT_PASS_FILE=$TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt
+TEKU_CERT_PASS=$(cat $TEKU_CERT_PASS_FILE)
 TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
 # TODO: Check if it is ok to put all this files in the charon root
@@ -198,28 +197,29 @@ function run_charon() {
   (
     exec charon run --private-key-file=$ENR_PRIVATE_KEY_FILE --lock-file=$CHARON_LOCK_FILE --builder-api
   ) &
-  CHARON_PID=$! # Get the PID of the charon process
 }
 
 function run_teku_validator() {
   # Teku must start with the current env due to JAVA_HOME var
-  exec /opt/teku/bin/teku --log-destination=CONSOLE \
-    validator-client \
-    --network=prater \
-    --beacon-node-api-endpoint=http://localhost:3600 \
-    --data-base-path=/opt/teku/data \
-    --metrics-enabled=true \
-    --metrics-interface 0.0.0.0 \
-    --metrics-port 8008 \
-    --metrics-host-allowlist=* \
-    --validator-api-enabled=true \
-    --validator-api-interface=0.0.0.0 \
-    --validator-api-port=3500 \
-    --validator-api-host-allowlist=* \
-    --validator-api-keystore-file="${TEKU_CERT_FILE}" \
-    --validator-api-keystore-password-file="${TEKU_CERT_PASS}" \
-    --validators-keystore-locking-enabled=false \
-    ${TEKU_EXTRA_OPTS}
+  (
+    exec /opt/teku/bin/teku --log-destination=CONSOLE \
+      validator-client \
+      --network=prater \
+      --beacon-node-api-endpoint=http://localhost:3600 \
+      --data-base-path=/opt/teku/data \
+      --metrics-enabled=true \
+      --metrics-interface 0.0.0.0 \
+      --metrics-port 8008 \
+      --metrics-host-allowlist=* \
+      --validator-api-enabled=true \
+      --validator-api-interface=0.0.0.0 \
+      --validator-api-port=3500 \
+      --validator-api-host-allowlist=* \
+      --validator-api-keystore-file="${TEKU_CERT_FILE}" \
+      --validator-api-keystore-password-file="${TEKU_CERT_PASS_FILE}" \
+      --validators-keystore-locking-enabled=false \
+      ${TEKU_EXTRA_OPTS}
+  ) &
 }
 
 ########
