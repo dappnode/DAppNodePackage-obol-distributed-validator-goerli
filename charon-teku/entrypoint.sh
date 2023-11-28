@@ -26,7 +26,6 @@ TEKU_CERT_PASS_FILE=$TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt
 TEKU_CERT_PASS=$(cat $TEKU_CERT_PASS_FILE)
 TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
-# TODO: Check if it is ok to put all this files in the charon root
 CHARON_LOCK_FILE=${CHARON_ROOT_DIR}/cluster-lock.json
 REQUEST_BODY_FILE=${CHARON_ROOT_DIR}/request-body.json
 CHARON_ROOT_DIR=${CHARON_ROOT_DIR}
@@ -132,66 +131,6 @@ function check_DKG() {
   fi
 }
 
-# function that handles the import of the validators
-function import_key() {
-  # Check if there are keys to import
-  if [ -d $VALIDATOR_KEYS_DIR ]; then
-    echo "${INFO} creating request body..."
-    create_request_body_file
-    echo "${INFO} importing validators.."
-    import_validators
-  fi
-}
-
-# Create request body file
-# - It cannot be used as environment variable because the slashing data might be too big resulting in the error: Error list too many arguments
-# - Exit if request body file cannot be created
-function create_request_body_file() {
-  echo ${KEY_IMPORT_HEADER} | jq >"$REQUEST_BODY_FILE"
-  KEYSTORE_FILES=($(ls ${VALIDATOR_KEYS_DIR}/*.json))
-  for KEYSTORE_FILE in "${KEYSTORE_FILES[@]}"; do
-    KEYSTORE_NAME="${KEYSTORE_FILE%.*}"
-    echo "${INFO} adding ${KEYSTORE_FILE}..."
-    echo $(jq --slurpfile keystore ${KEYSTORE_FILE} '.keystores += [$keystore[0]|tojson]' ${REQUEST_BODY_FILE}) >${REQUEST_BODY_FILE}
-    echo $(jq --slurpfile keystore ${KEYSTORE_FILE} '.slashing_protection.data += [{"pubkey": $keystore[0].pubkey, "signed_blocks":[],  "signed_attestations": []}]' ${REQUEST_BODY_FILE}) >${REQUEST_BODY_FILE}
-    echo $(jq --arg walletpassword "$(cat ${KEYSTORE_NAME}.txt)" '.passwords += [$walletpassword]' ${REQUEST_BODY_FILE}) >${REQUEST_BODY_FILE}
-  done
-  echo $(jq '.slashing_protection |= tostring ' ${REQUEST_BODY_FILE}) >${REQUEST_BODY_FILE}
-  cat ${REQUEST_BODY_FILE}
-}
-
-# Import validators with request body file
-# - Docs: https://ethereum.github.io/keymanager-APIs/#/
-function import_validators() {
-  HTTP_RESPONSE=$(curl -X POST \
-    --silent \
-    -k --cert-type P12 --cert ${TEKU_CERT_FILE}:${TEKU_CERT_PASS} \
-    -w "HTTPSTATUS:%{http_code}" \
-    -d @"${REQUEST_BODY_FILE}" \
-    --retry 30 \
-    --retry-delay 3 \
-    --retry-connrefused \
-    -H "Content-Type: application/json" \
-    -H "Accept: application/json" \
-    -H "Authorization: Bearer ${TEKU_API_TOKEN}" \
-    "${VALIDATOR_URL}"/eth/v1/keystores) ||
-    {
-      echo "[ERROR] failed to import keys into validator"
-      exit 1
-    }
-  HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
-  HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
-
-  if [ ! $HTTP_STATUS -eq 200 ]; then
-    echo "[ERROR] failed to import keys into validator"
-    exit 1
-  else
-    echo "${INFO} validator response: ${HTTP_BODY}"
-  fi
-
-  echo "${INFO} validators imported"
-}
-
 function run_charon() {
   # Start charon in a subshell in the background
   (
@@ -200,26 +139,26 @@ function run_charon() {
 }
 
 function run_teku_validator() {
-  # Teku must start with the current env due to JAVA_HOME var
-  (
-    exec /opt/teku/bin/teku --log-destination=CONSOLE \
-      validator-client \
-      --network=prater \
-      --beacon-node-api-endpoint=http://localhost:3600 \
-      --data-base-path=/opt/teku/data \
-      --metrics-enabled=true \
-      --metrics-interface 0.0.0.0 \
-      --metrics-port 8008 \
-      --metrics-host-allowlist=* \
-      --validator-api-enabled=true \
-      --validator-api-interface=0.0.0.0 \
-      --validator-api-port=3500 \
-      --validator-api-host-allowlist=* \
-      --validator-api-keystore-file="${TEKU_CERT_FILE}" \
-      --validator-api-keystore-password-file="${TEKU_CERT_PASS_FILE}" \
-      --validators-keystore-locking-enabled=false \
-      ${TEKU_EXTRA_OPTS}
-  ) &
+
+  exec /opt/teku/bin/teku --log-destination=CONSOLE \
+    validator-client \
+    --network=prater \
+    --beacon-node-api-endpoint=http://localhost:3600 \
+    --data-base-path=/opt/teku/data \
+    --metrics-enabled=true \
+    --metrics-interface 0.0.0.0 \
+    --metrics-port 8008 \
+    --metrics-host-allowlist=* \
+    --validator-api-enabled=true \
+    --validator-api-interface=0.0.0.0 \
+    --validator-api-port=3500 \
+    --validator-api-host-allowlist=* \
+    --validator-api-keystore-file="${TEKU_CERT_FILE}" \
+    --validator-api-keystore-password-file="${TEKU_CERT_PASS_FILE}" \
+    --validators-keystore-locking-enabled=false \
+    --validator-keys=${VALIDATOR_KEYS_DIR}:${VALIDATOR_KEYS_DIR} \
+    ${TEKU_EXTRA_OPTS}
+
 }
 
 ########
@@ -240,6 +179,3 @@ run_charon
 
 echo "${INFO} starting teku validator..."
 run_teku_validator
-
-echo "${INFO} importing keys into validator..."
-import_key
