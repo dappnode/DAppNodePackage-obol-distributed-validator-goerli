@@ -23,6 +23,6 @@ COPY entrypoint.sh /entrypoint.sh
 
 # To prevent the user from editing the CLUSTER_ID, we set it as an ARG
 ARG CLUSTER_ID
-ENV CLUSTER_ID=${CLUSTER_ID} CHARON_LOG_FORMAT=console
+ENV CLUSTER_ID=${CLUSTER_ID} CHARON_LOG_FORMAT=console NETWORK=prater
 
 ENTRYPOINT ["/entrypoint.sh"]

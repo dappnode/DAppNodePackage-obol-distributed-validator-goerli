@@ -137,6 +137,7 @@ function run_teku_validator() {
     --validator-api-enabled=false \
     --validators-keystore-locking-enabled=false \
     --validator-keys=${VALIDATOR_KEYS_DIR}:${VALIDATOR_KEYS_DIR} \
+    --network=${NETWORK} \
     ${TEKU_EXTRA_OPTS}
 }
 
