@@ -13,36 +13,21 @@ CHARON_ROOT_DIR=/opt/charon/.charon
 CREATE_ENR_FILE=${CHARON_ROOT_DIR}/create_enr.txt
 ENR_PRIVATE_KEY_FILE=${CHARON_ROOT_DIR}/charon-enr-private-key
 ENR_FILE=${CHARON_ROOT_DIR}/enr
-DEFINITION_FILE_HASH_FILE=${CHARON_ROOT_DIR}/definition_file_hash.txt
+DEFINITION_FILE_URL_FILE=${CHARON_ROOT_DIR}/definition_file_url.txt
 
 CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
-VALIDATOR_URL="https://localhost:3500"
-GENESIS_VALIDATORS_ROOT=0x043db0d9a83813551ee2f33450d23797757d430911a9320530ad8a0eabc43efb
-KEY_IMPORT_HEADER="{ \"keystores\": [], \"passwords\": [], \"slashing_protection\": {\"metadata\":{\"interchange_format_version\":\"5\",\"genesis_validators_root\":\"$GENESIS_VALIDATORS_ROOT\"},\"data\":[]}}"
 
 TEKU_SECURITY_DIR=/opt/charon/security
 TEKU_CERT_FILE=$TEKU_SECURITY_DIR/certs/teku_${CLUSTER_ID}_certificate.p12
 TEKU_CERT_PASS_FILE=$TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt
 TEKU_CERT_PASS=$(cat $TEKU_CERT_PASS_FILE)
-TEKU_API_TOKEN=$(cat $TEKU_SECURITY_DIR/validator-api-bearer)
 
 CHARON_LOCK_FILE=${CHARON_ROOT_DIR}/cluster-lock.json
 REQUEST_BODY_FILE=${CHARON_ROOT_DIR}/request-body.json
-CHARON_ROOT_DIR=${CHARON_ROOT_DIR}
 VALIDATOR_KEYS_DIR=${CHARON_ROOT_DIR}/validator_keys
 
-# If DEFINITION_FILE_HASH_FILE exists, get the definition file from the hash
-if [ -f "$DEFINITION_FILE_HASH_FILE" ]; then
-  DEFINITION_FILE_HASH=$(cat $DEFINITION_FILE_HASH_FILE)
-
-elif [ -n "$DEFINITION_FILE_URL" ]; then
-  #Get the definition file from the environment variable and the hash
-  DEFINITION_FILE_HASH=$(echo $DEFINITION_FILE_URL | sed 's|https://api.obol.tech/dv/||g' | tr -d "/")
-  if [[ $DEFINITION_FILE_URL != https* ]]; then
-    DEFINITION_FILE_URL=https://api.obol.tech/dv/$DEFINITION_FILE_HASH
-  fi
-
-  echo $DEFINITION_FILE_HASH >$DEFINITION_FILE_HASH_FILE
+if [ -n "$DEFINITION_FILE_URL" ]; then
+  echo $DEFINITION_FILE_URL >$DEFINITION_FILE_URL_FILE
 fi
 
 #############
@@ -149,16 +134,10 @@ function run_teku_validator() {
     --metrics-interface 0.0.0.0 \
     --metrics-port 8008 \
     --metrics-host-allowlist=* \
-    --validator-api-enabled=true \
-    --validator-api-interface=0.0.0.0 \
-    --validator-api-port=3500 \
-    --validator-api-host-allowlist=* \
-    --validator-api-keystore-file="${TEKU_CERT_FILE}" \
-    --validator-api-keystore-password-file="${TEKU_CERT_PASS_FILE}" \
+    --validator-api-enabled=false \
     --validators-keystore-locking-enabled=false \
     --validator-keys=${VALIDATOR_KEYS_DIR}:${VALIDATOR_KEYS_DIR} \
     ${TEKU_EXTRA_OPTS}
-
 }
 
 ########

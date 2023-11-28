@@ -4,7 +4,6 @@ FROM obolnetwork/charon:${UPSTREAM_VERSION}
 
 USER root
 
-# TODO: Install ca-certificates?
 # Install Java to run Teku
 RUN apt-get update && \
     apt-get install -y jq curl openjdk-17-jdk && \
@@ -19,8 +18,6 @@ RUN curl -L https://artifacts.consensys.net/public/teku/raw/names/teku.tar.gz/ve
     rm -rf /tmp/teku-${TEKU_VERSION}
 
 RUN mkdir -p /opt/charon/.charon && chown -R charon:charon /opt/charon
-
-COPY teku_security/ /opt/charon/security/
 
 COPY entrypoint.sh /entrypoint.sh
 
