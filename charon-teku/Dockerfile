@@ -8,7 +8,7 @@ USER root
 RUN apt-get update && \
     apt-get install -y jq curl openjdk-17-jdk && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 ARG TEKU_VERSION
 RUN curl -L https://artifacts.consensys.net/public/teku/raw/names/teku.tar.gz/versions/${TEKU_VERSION}/teku-${TEKU_VERSION}.tar.gz | tar -xz -C /tmp && \
