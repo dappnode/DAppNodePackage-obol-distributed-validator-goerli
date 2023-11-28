@@ -1,20 +1,52 @@
 [
-    {
-        "labels": {
-            "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
-            "service": "charon.obol-distributed-validator-goerli.dappnode"
-        },
-        "targets": [
-            "charon.obol-distributed-validator-goerli.dappnode:3620"
-        ]
+  {
+    "labels": {
+      "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
+      "service": "charon-teku-1.obol-distributed-validator-goerli.dappnode"
     },
-    {
-        "labels": {
-            "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
-            "service": "teku.obol-distributed-validator-goerli.dappnode"
-        },
-        "targets": [
-            "teku.obol-distributed-validator-goerli.dappnode:8008"
-        ]
-    }
+    "targets": [
+      "charon-teku-1.obol-distributed-validator-goerli.dappnode:3620",
+      "charon-teku-1.obol-distributed-validator-goerli.dappnode:8008"
+    ]
+  },
+  {
+    "labels": {
+      "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
+      "service": "charon-teku-2.obol-distributed-validator-goerli.dappnode"
+    },
+    "targets": [
+      "charon-teku-2.obol-distributed-validator-goerli.dappnode:3620",
+      "charon-teku-2.obol-distributed-validator-goerli.dappnode:8008"
+    ]
+  },
+  {
+    "labels": {
+      "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
+      "service": "charon-teku-3.obol-distributed-validator-goerli.dappnode"
+    },
+    "targets": [
+      "charon-teku-3.obol-distributed-validator-goerli.dappnode:3620",
+      "charon-teku-3.obol-distributed-validator-goerli.dappnode:8008"
+    ]
+  },
+  {
+    "labels": {
+      "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
+      "service": "charon-teku-4.obol-distributed-validator-goerli.dappnode"
+    },
+    "targets": [
+      "charon-teku-4.obol-distributed-validator-goerli.dappnode:3620",
+      "charon-teku-4.obol-distributed-validator-goerli.dappnode:8008"
+    ]
+  },
+  {
+    "labels": {
+      "package": "obol-distributed-validator-goerli.dnp.dappnode.eth",
+      "service": "charon-teku-5.obol-distributed-validator-goerli.dappnode"
+    },
+    "targets": [
+      "charon-teku-5.obol-distributed-validator-goerli.dappnode:3620",
+      "charon-teku-5.obol-distributed-validator-goerli.dappnode:8008"
+    ]
+  }
 ]
