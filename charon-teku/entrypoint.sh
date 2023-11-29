@@ -122,7 +122,6 @@ function run_teku_validator() {
 
   exec /opt/teku/bin/teku --log-destination=CONSOLE \
     validator-client \
-    --network=prater \
     --beacon-node-api-endpoint=http://localhost:3600 \
     --data-base-path=/opt/teku/data \
     --metrics-enabled=true \
