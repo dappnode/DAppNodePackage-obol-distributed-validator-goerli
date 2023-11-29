@@ -15,11 +15,6 @@ ENR_PRIVATE_KEY_FILE=${CHARON_ROOT_DIR}/charon-enr-private-key
 ENR_FILE=${CHARON_ROOT_DIR}/enr
 DEFINITION_FILE_URL_FILE=${CHARON_ROOT_DIR}/definition_file_url.txt
 
-TEKU_SECURITY_DIR=/opt/charon/security
-TEKU_CERT_FILE=$TEKU_SECURITY_DIR/certs/teku_${CLUSTER_ID}_certificate.p12
-TEKU_CERT_PASS_FILE=$TEKU_SECURITY_DIR/certs/teku_certificate_pass.txt
-TEKU_CERT_PASS=$(cat $TEKU_CERT_PASS_FILE)
-
 CHARON_LOCK_FILE=${CHARON_ROOT_DIR}/cluster-lock.json
 REQUEST_BODY_FILE=${CHARON_ROOT_DIR}/request-body.json
 VALIDATOR_KEYS_DIR=${CHARON_ROOT_DIR}/validator_keys
