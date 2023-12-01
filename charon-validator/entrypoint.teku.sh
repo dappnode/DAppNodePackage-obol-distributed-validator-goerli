@@ -35,21 +35,21 @@ export CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
 #############
 
 function get_beacon_node_endpoint() {
-  case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_HOLESKY" in
-  "prysm-holesky.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.prysm-holesky.dappnode:3500"
+  case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER" in
+  "prysm-prater.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.prysm-prater.dappnode:3500"
     ;;
-  "teku-holesky.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.teku-holesky.dappnode:3500"
+  "teku-prater.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.teku-prater.dappnode:3500"
     ;;
-  "lighthouse-holesky.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lighthouse-holesky.dappnode:3500"
+  "lighthouse-prater.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lighthouse-prater.dappnode:3500"
     ;;
-  "nimbus-holesky.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-validator.nimbus-holesky.dappnode:4500"
+  "nimbus-prater.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-validator.nimbus-prater.dappnode:4500"
     ;;
-  "lodestar-holesky.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-holesky.dappnode:3500"
+  "lodestar-prater.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-prater.dappnode:3500"
     ;;
   *)
 
