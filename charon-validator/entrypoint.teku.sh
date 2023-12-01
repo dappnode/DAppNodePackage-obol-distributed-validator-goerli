@@ -23,34 +23,38 @@ if [ -n "$DEFINITION_FILE_URL" ]; then
   echo $DEFINITION_FILE_URL >$DEFINITION_FILE_URL_FILE
 fi
 
+if [ "$ENABLE_MEV_BOOST" = true ]; then
+  CHARON_EXTRA_OPTS="--builder-api $CHARON_EXTRA_OPTS"
+  VALIDATOR_EXTRA_OPTS="--validators-proposer-blinded-blocks-enabled=true --validators-builder-registration-default-enabled=true $VALIDATOR_EXTRA_OPTS"
+fi
+
 export CHARON_P2P_EXTERNAL_HOSTNAME=${_DAPPNODE_GLOBAL_DOMAIN}
 
 #############
 # FUNCTIONS #
 #############
 
-# Get the current beacon chain in use
-# Assign proper value to _DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER.
 function get_beacon_node_endpoint() {
-  case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER" in
-  "prysm-prater.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.prysm-prater.dappnode:3500"
+  case "$_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_HOLESKY" in
+  "prysm-holesky.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.prysm-holesky.dappnode:3500"
     ;;
-  "teku-prater.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.teku-prater.dappnode:3500"
+  "teku-holesky.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.teku-holesky.dappnode:3500"
     ;;
-  "lighthouse-prater.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lighthouse-prater.dappnode:3500"
+  "lighthouse-holesky.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lighthouse-holesky.dappnode:3500"
     ;;
-  "nimbus-prater.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-validator.nimbus-prater.dappnode:4500"
+  "nimbus-holesky.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-validator.nimbus-holesky.dappnode:4500"
     ;;
-  "lodestar-prater.dnp.dappnode.eth")
-    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-prater.dappnode:3500"
+  "lodestar-holesky.dnp.dappnode.eth")
+    export CHARON_BEACON_NODE_ENDPOINTS="http://beacon-chain.lodestar-holesky.dappnode:3500"
     ;;
   *)
-    echo "_DAPPNODE_GLOBAL_CONSENSUS_CLIENT_PRATER env is not set propertly"
-    sleep 300 # Wait 5 minutes to avoid restarting the container
+
+    export CHARON_BEACON_NODE_ENDPOINTS=$EXTERNAL_BEACON_NODE_ENDPOINT
+    echo "Using external beacon node endpoint: $CHARON_BEACON_NODE_ENDPOINTS"
     ;;
   esac
 }
@@ -115,16 +119,15 @@ function check_DKG() {
 function run_charon() {
   # Start charon in a subshell in the background
   (
-    exec charon run --private-key-file=$ENR_PRIVATE_KEY_FILE --lock-file=$CHARON_LOCK_FILE --builder-api
+    exec charon run --private-key-file=$ENR_PRIVATE_KEY_FILE --lock-file=$CHARON_LOCK_FILE ${CHARON_EXTRA_OPTS}
   ) &
 }
 
-function run_teku_validator() {
-
-  exec /opt/teku/bin/teku --log-destination=CONSOLE \
+function run_validator_client() {
+  exec ${VALIDATOR_SERVICE_BIN} --log-destination=CONSOLE \
     validator-client \
     --beacon-node-api-endpoint=http://localhost:3600 \
-    --data-base-path=/opt/teku/data \
+    --data-base-path=${VALIDATOR_DATA_DIR} \
     --metrics-enabled=true \
     --metrics-interface 0.0.0.0 \
     --metrics-port 8008 \
@@ -133,7 +136,9 @@ function run_teku_validator() {
     --validators-keystore-locking-enabled=false \
     --validator-keys=${VALIDATOR_KEYS_DIR}:${VALIDATOR_KEYS_DIR} \
     --network=${NETWORK} \
-    ${TEKU_EXTRA_OPTS}
+    --validators-proposer-default-fee-recipient=${DEFAULT_FEE_RECIPIENT} \
+    --validators-graffiti=${GRAFFITI} \
+    ${VALIDATOR_EXTRA_OPTS}
 }
 
 ########
@@ -152,5 +157,5 @@ check_DKG
 echo "${INFO} starting charon..."
 run_charon
 
-echo "${INFO} starting teku validator..."
-run_teku_validator
+echo "${INFO} starting validator client..."
+run_validator_client
