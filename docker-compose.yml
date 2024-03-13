@@ -5,7 +5,7 @@ services:
       context: charon-validator
       dockerfile: Dockerfile.lodestar
       args:
-        UPSTREAM_VERSION: v0.17.2
+        UPSTREAM_VERSION: v0.19.2
         VALIDATOR_CLIENT_VERSION: v1.15.1
         CLUSTER_ID: 1
     restart: on-failure
@@ -32,13 +32,14 @@ services:
       test: "wget -qO- http://localhost:3620/readyz"
     security_opt:
       - "seccomp:unconfined"
-    image: "charon-validator-1.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: >-
+      charon-validator-1.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1
   charon-validator-2:
     build:
       context: charon-validator
       dockerfile: Dockerfile.lodestar
       args:
-        UPSTREAM_VERSION: v0.17.2
+        UPSTREAM_VERSION: v0.19.2
         VALIDATOR_CLIENT_VERSION: v1.15.1
         CLUSTER_ID: 2
     restart: on-failure
@@ -65,13 +66,14 @@ services:
       test: "wget -qO- http://localhost:3620/readyz"
     security_opt:
       - "seccomp:unconfined"
-    image: "charon-validator-2.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: >-
+      charon-validator-2.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1
   charon-validator-3:
     build:
       context: charon-validator
       dockerfile: Dockerfile.lodestar
       args:
-        UPSTREAM_VERSION: v0.17.2
+        UPSTREAM_VERSION: v0.19.2
         VALIDATOR_CLIENT_VERSION: v1.15.1
         CLUSTER_ID: 3
     restart: on-failure
@@ -98,13 +100,14 @@ services:
       test: "wget -qO- http://localhost:3620/readyz"
     security_opt:
       - "seccomp:unconfined"
-    image: "charon-validator-3.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: >-
+      charon-validator-3.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1
   charon-validator-4:
     build:
       context: charon-validator
       dockerfile: Dockerfile.lodestar
       args:
-        UPSTREAM_VERSION: v0.17.2
+        UPSTREAM_VERSION: v0.19.2
         VALIDATOR_CLIENT_VERSION: v1.15.1
         CLUSTER_ID: 4
     restart: on-failure
@@ -131,13 +134,14 @@ services:
       test: "wget -qO- http://localhost:3620/readyz"
     security_opt:
       - "seccomp:unconfined"
-    image: "charon-validator-4.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: >-
+      charon-validator-4.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1
   charon-validator-5:
     build:
       context: charon-validator
       dockerfile: Dockerfile.lodestar
       args:
-        UPSTREAM_VERSION: v0.17.2
+        UPSTREAM_VERSION: v0.19.2
         VALIDATOR_CLIENT_VERSION: v1.15.1
         CLUSTER_ID: 5
     restart: on-failure
@@ -164,7 +168,8 @@ services:
       test: "wget -qO- http://localhost:3620/readyz"
     security_opt:
       - "seccomp:unconfined"
-    image: "charon-validator-5.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1"
+    image: >-
+      charon-validator-5.obol-distributed-validator-goerli.dnp.dappnode.eth:0.1.1
 volumes:
   charon-1-data: {}
   charon-2-data: {}
